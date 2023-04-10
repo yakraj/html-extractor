@@ -192,9 +192,14 @@
             allElements[i].classList.length > 0
               ? `.${allElements[i].classList[0]}`
               : `#${allElements[i].id}`;
+          const objectExists = extractedCss.some((x) => x.includes(identifier) );
+          
           if (styles) {
-            extractedCss.push(`${identifier} {${styles}}`);
+          if(!objectExists){
+            extractedCss.push(`${identifier} {${styles}}`);}
           }
+          
+          
         }
 
         // set the extracted CSS in the output element
