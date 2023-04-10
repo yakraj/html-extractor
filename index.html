@@ -190,7 +190,7 @@
 
           const identifier =
             allElements[i].classList.length > 0
-              ? `.${allElements[i].classList[0]}`
+              ? `.${allElements[i].classList[allElements[i].classList.length -1]}`
               : `#${allElements[i].id}`;
           const objectExists = extractedCss.some((x) => x.includes(identifier) );
           
