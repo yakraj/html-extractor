@@ -182,7 +182,6 @@
 
         // loop through all the elements and extract their inline styles
         for (let i = 0; i < allElements.length; i++) {
-          allElements[i].style.removeProperty("box-shadow");
           allElements[i].style.removeProperty("z-index");
           allElements[i].style.removeProperty("outline");
           const styles = allElements[i].getAttribute("style");
