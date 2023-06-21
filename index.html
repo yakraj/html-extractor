@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css"
+      rel="stylesheet"
+    />
     <title>Document</title>
     <link
       rel="stylesheet"
@@ -137,7 +141,7 @@
               <h2>Extracted CSS</h2>
               <button onclick="copyCSS()" class="button">COPY</button>
             </div>
-            <pre class="language-css">
+            <pre>
                 <code class="language-css" id="extracted-css">
                   <!-- Your HTML code goes here -->
                 </code>
@@ -157,6 +161,11 @@
         </div>
       </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prettier/standalone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prettier/parser-html.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prettier/parser-postcss.js"></script>
+
     <script>
       let HTMLvalue;
       let CSSvalue;
@@ -202,8 +211,9 @@
         repeatedClasses.forEach((ee) => {
           //it will find all styles inside all elements
           // Get all the elements with the common class name
-          const elements = document.getElementsByClassName(ee);
+          const elements = tempElement.getElementsByClassName(ee);
           // Extract the common class name from the first element
+
           const commonClassName = elements[0].className;
 
           // Array to store the common styles
@@ -212,7 +222,6 @@
           for (let i = 0; i < elements.length; i++) {
             const element = elements[i];
 
-            console.log(element);
             // Split the inline styles into individual declarations
             const inlineStyles = element.getAttribute("style").split(";");
             commonStyles.push(inlineStyles);
@@ -222,9 +231,13 @@
           const commonElements = commonStyles.reduce((common, array) => {
             return common.filter((element) => array.includes(element));
           });
+
           // it will convert it to plain css
           const outputstyle = `.${ee}{` + commonElements.join("; ") + "}";
-          extractedCss.push(outputstyle);
+
+          if (commonElements.length > 1) {
+            extractedCss.push(outputstyle);
+          }
           // to be used for remove the styles inside of the commonElements
           //remove values and keep only properties
           let RemoveProperties = commonElements.map((style) =>
@@ -256,23 +269,40 @@
           if (styles) {
             if (!objectExists) {
               extractedCss.push(`${identifier} {${styles}}`);
+              allElements[i].removeAttribute("style");
             }
           }
         }
+        const plaintext = extractedCss.join("");
+        const formattedcssCode = prettier.format(`${plaintext}`, {
+          parser: "css",
+          plugins: prettierPlugins
+        });
 
-        console.log(extractedCss);
-
+        extractedCssOutput.textContent = formattedcssCode;
         // set the extracted CSS in the output element
-        extractedCssOutput.innerText = extractedCss.join("\n");
-
+        // extractedCssOutput.innerText = extractedCss.join("\n");
+        Prism.highlightElement(extractedCssOutput);
         const divElements = tempElement.querySelectorAll("*");
         divElements.forEach((divElement) => {
-          divElement.removeAttribute("style");
+          if (!divElement.style.length) {
+            divElement.removeAttribute("style");
+          }
+          if (divElement.id) {
+            divElement.removeAttribute("style");
+          }
           divElement.classList.length > 0
             ? divElement.removeAttribute("id")
             : null;
         });
-        extractedHTMLOutput.innerText = `${tempElement.innerHTML}`;
+
+        const formattedCode = prettier.format(`${tempElement.innerHTML}`, {
+          parser: "html",
+          plugins: prettierPlugins
+        });
+        extractedHTMLOutput.textContent = formattedCode;
+        Prism.highlightElement(extractedHTMLOutput);
+        // extractedHTMLOutput.innerText = `${tempElement.innerHTML}`;
       }
 
       const copyHTML = () => {
@@ -301,5 +331,6 @@
       // Enable dark mode
       document.documentElement.classList.add("dark");
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
   </body>
 </html>
