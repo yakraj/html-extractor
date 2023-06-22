@@ -193,6 +193,9 @@
         let classlists = [];
         allElements.forEach((element) => {
           const classes = Array.from(element.classList);
+          if (element.style.outline.includes("dashed")) {
+            element.style.removeProperty("outline");
+          }
           classlists.push(...classes);
         });
         // find all classes which are repeated more that 1time
@@ -255,7 +258,6 @@
         // loop through all the elements and extract their inline styles
         for (let i = 0; i < allElements.length; i++) {
           allElements[i].style.removeProperty("z-index");
-          allElements[i].style.removeProperty("outline");
           const styles = allElements[i].getAttribute("style");
 
           const identifier =
