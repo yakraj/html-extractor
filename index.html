@@ -129,7 +129,11 @@
         <div class="insert-code">
           <div class="add-code-tab">
             <h2>Insert your Code</h2>
-            <button id="extract-css-btn" class="button">
+            <button
+              onclick="extractCssFromHtml('html')"
+              id="extract-css-btn"
+              class="button"
+            >
               Compile and Extract
             </button>
           </div>
@@ -138,7 +142,7 @@
         <div class="lower-contaier">
           <div class="css-code">
             <div class="css-code-tab">
-              <h2>Extracted CSS</h2>
+              <button class="button">CSS</button>
               <button onclick="copyCSS()" class="button">COPY</button>
             </div>
             <pre>
@@ -149,7 +153,10 @@
           </div>
           <div class="html-code">
             <div class="html-code-tab">
-              <h2>Extracted HTML</h2>
+              <div>
+                <button onclick="SelectHTML()" class="button">HTML</button>
+                <button onclick="SelectJSX()" class="button">JSX</button>
+              </div>
               <button onclick="copyHTML()" class="button">COPY</button>
             </div>
             <pre class="language-html">
@@ -165,6 +172,7 @@
     <script src="https://cdn.jsdelivr.net/npm/prettier/standalone.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prettier/parser-html.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prettier/parser-postcss.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prettier/parser-babel.js"></script>
 
     <script>
       let HTMLvalue;
@@ -174,9 +182,8 @@
       const extractCssBtn = document.getElementById("extract-css-btn");
       const extractedCssOutput = document.getElementById("extracted-css");
       const extractedHTMLOutput = document.getElementById("extracted-html");
-
+      let ExtractedHTML;
       // add event listener to the extract CSS button
-      extractCssBtn.addEventListener("click", extractCssFromHtml);
 
       function extractCssFromHtml() {
         // create a new DOM element from the HTML code
@@ -278,7 +285,7 @@
         const plaintext = extractedCss.join("");
         const formattedcssCode = prettier.format(`${plaintext}`, {
           parser: "css",
-          plugins: prettierPlugins
+          plugins: prettierPlugins,
         });
 
         extractedCssOutput.textContent = formattedcssCode;
@@ -298,13 +305,60 @@
             : null;
         });
 
+        ExtractedHTML = tempElement.innerHTML;
+
         const formattedCode = prettier.format(`${tempElement.innerHTML}`, {
           parser: "html",
-          plugins: prettierPlugins
+          plugins: prettierPlugins,
         });
         extractedHTMLOutput.textContent = formattedCode;
         Prism.highlightElement(extractedHTMLOutput);
+
         // extractedHTMLOutput.innerText = `${tempElement.innerHTML}`;
+      }
+
+      function SelectHTML() {
+        const formattedCode = prettier.format(ExtractedHTML, {
+          parser: "html",
+          plugins: prettierPlugins,
+        });
+        extractedHTMLOutput.textContent = formattedCode;
+        Prism.highlightElement(extractedHTMLOutput);
+      }
+      function convertHtmlToJsx(html) {
+        // Replace class with className
+        let jsx = html.replace(/class=/g, "className=");
+
+        // Convert styles to camelCase with quotes
+        jsx = jsx.replace(/style="([^"]*)"/g, (_, styles) => {
+          const camelCasedStyles = styles.replace(/-(\w)/g, (_, letter) =>
+            letter.toUpperCase()
+          );
+          const styleProperties = camelCasedStyles
+            .split(";")
+            .map((prop) => prop.trim())
+            .filter((prop) => prop !== "");
+          const quotedStyles = styleProperties
+            .map((property) => {
+              const [key, value] = property
+                .split(":")
+                .map((prop) => prop.trim());
+              return `${key}: ${isNaN(value) ? `"${value}"` : value}`;
+            })
+            .join(", ");
+          return `style={{ ${quotedStyles} }}`;
+        });
+
+        return jsx;
+      }
+
+      function SelectJSX() {
+        const formattedCode = prettier.format(convertHtmlToJsx(ExtractedHTML), {
+          parser: "babel",
+          plugins: prettierPlugins,
+        });
+        extractedHTMLOutput.textContent = formattedCode;
+        Prism.highlightElement(extractedHTMLOutput);
       }
 
       const copyHTML = () => {
