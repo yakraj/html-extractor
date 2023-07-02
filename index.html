@@ -341,7 +341,7 @@
           const quotedStyles = styleProperties
             .map((property) => {
               const [key, value] = property
-                .split(":")
+                .split(/:\s+/)
                 .map((prop) => prop.trim());
               return `${key}: ${isNaN(value) ? `"${value}"` : value}`;
             })
@@ -353,10 +353,13 @@
       }
 
       function SelectJSX() {
-        const formattedCode = prettier.format(convertHtmlToJsx(ExtractedHTML), {
-          parser: "babel",
-          plugins: prettierPlugins,
-        });
+        const formattedCode = prettier.format(
+          convertHtmlToJsx(extractedHTMLOutput.innerText),
+          {
+            parser: "babel",
+            plugins: prettierPlugins,
+          }
+        );
         extractedHTMLOutput.textContent = formattedCode;
         Prism.highlightElement(extractedHTMLOutput);
       }
