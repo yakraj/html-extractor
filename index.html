@@ -183,6 +183,7 @@
       const extractedCssOutput = document.getElementById("extracted-css");
       const extractedHTMLOutput = document.getElementById("extracted-html");
       let ExtractedHTML;
+      let ExtractedPlainCss;
       // add event listener to the extract CSS button
 
       function extractCssFromHtml() {
@@ -283,6 +284,7 @@
           }
         }
         const plaintext = extractedCss.join("");
+        ExtractedPlainCss = plaintext;
         const formattedcssCode = prettier.format(`${plaintext}`, {
           parser: "css",
           plugins: prettierPlugins,
